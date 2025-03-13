@@ -1,0 +1,2 @@
+# lootify-auto
+ 
