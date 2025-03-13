@@ -3,22 +3,27 @@ const fs = require("fs");
 const path = require("path");
 
 const API_URL = "https://1vpveb4uje.execute-api.us-east-2.amazonaws.com/loot/open/solana/monad-box1";
-const walletAddress = "0x7DE2fafd0B8D9888efbE2e3CE5A9925869164472";
-const tokenPath = path.join(__dirname, "token.txt");
+const dataPath = path.join(__dirname, "data.txt");
 
-function getToken() {
+function getData() {
     try {
-        const token = fs.readFileSync(tokenPath, "utf8").trim();
-        if (!token) throw new Error("JWT Token is empty!");
-        return token;
+        const data = fs.readFileSync(dataPath, "utf8").trim().split("\n").map(line => line.trim());
+        if (data.length < 2) throw new Error("File data.txt harus berisi minimal 2 baris (token dan address)");
+        
+        const accessToken = data[0];  
+        const walletAddress = data[1]; 
+
+        if (!accessToken || !walletAddress) throw new Error("Token atau address kosong!");
+        
+        return { accessToken, walletAddress };
     } catch (error) {
-        console.error("[❌] Error reading token:", error.message);
+        console.error("[❌] Error membaca data.txt:", error.message);
         process.exit(1);
     }
 }
 
 async function openLootBox(quantity = 5, price = 5) {
-    const accessToken = getToken();
+    const { accessToken, walletAddress } = getData();
 
     try {
         const response = await axios.post(
@@ -57,5 +62,5 @@ async function autoLoot(times = 99999999999999999999) {
     console.log("\n✅ Auto Loot Completed!\n");
 }
 
-// Jalankan auto loot
+
 autoLoot();
