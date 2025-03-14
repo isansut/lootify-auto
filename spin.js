@@ -19,7 +19,8 @@ const boxes = {
     "3": { name: "GMONAD", slug: "monad-box3", qnt: 5, price: 50 },
     "4": { name: "A HUNDRED", slug: "monad-box4", qnt: 5, price: 100 },
     "5": { name: "ONE SHOT", slug: "monad-box5", qnt: 5, price: 500 },
-    "6": { name: "MON BOX", slug: "monad-mon-box", qnt: 5, price: 100 }
+    "6": { name: "MON BOX", slug: "monad-mon-box", qnt: 5, price: 100 },
+    "7": { name: "RANDOM BOX" } // Opsi random tidak memiliki slug, qnt, dan price
 };
 
 const openBox = async (box) => {
@@ -27,23 +28,30 @@ const openBox = async (box) => {
     let counter = 0;
     while (true) {
         counter++;
-        console.log(`Membuka Box ke-${counter} Nama Box ${box.name}...`);
+        let selectedBox = box;
+        
+        if (box.name === "RANDOM BOX") {
+            const randomKey = (Math.floor(Math.random() * 6) + 1).toString(); // Hanya dari 1-6
+            selectedBox = boxes[randomKey];
+            console.log(`Membuka Box ke-${counter} Nama Box ${selectedBox.name}...`);
+        }
+        
         try {
-            const response = await axios.post(API_URL + box.slug, {
+            const response = await axios.post(API_URL + selectedBox.slug, {
                 network: "solana",
-                slug: box.slug,
+                slug: selectedBox.slug,
                 access_token: ACCESS_TOKEN,
                 wallet: WALLET,
-                qnt: box.qnt,
-                price: box.price
+                qnt: selectedBox.qnt,
+                price: selectedBox.price
             }, {
                 headers: { Authorization: `Bearer ${ACCESS_TOKEN}` }
             });
-            console.log(`Sukses Membuka Box ke-${counter} Nama Box ${box.name}...`);
+            console.log(`Sukses Membuka Box ke-${counter} Nama Box ${selectedBox.name}...`);
         } catch (error) {
             console.error("Error membuka box:", error.response?.data || error.message);
         }
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Delay 2 detik
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Delay 1 detik
     }
 };
 
